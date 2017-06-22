@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eu
 
 prefix() {
 	sed -e "s/^/$1: /"
@@ -6,18 +7,22 @@ prefix() {
 
 run_target() {
 	./target 2> >(prefix 'target' >&2)
+	return $?
 }
 
 run_compress() {
 	./compress 2> >(prefix 'compress' >&2)
+	return $?
 }
 
 run_encrypt() {
 	./encrypt 2> >(prefix 'encrypt' >&2) 3< <(echo "$1"; echo "$2")
+	return $?
 }
 
 run_store() {
 	./store 2> >(prefix 'store' >&2)
+	return $?
 }
 
 read -u3 IV  2>/dev/null
@@ -29,4 +34,13 @@ if [[ -z ${IV} || -z ${KEY} ]]; then
 	exit 1
 fi
 
-run_target | run_compress | run_encrypt "$IV" "$KEY" | run_store
+PULSE=$(mktemp -t shield-pipe.XXXXX)
+trap "rm -f ${PULSE}" QUIT TERM INT
+
+set -o pipefail
+run_target | tee >(tail -c1 >$PULSE) | run_compress | run_encrypt "$IV" "$KEY" | run_store
+if [[ ! -s "${PULSE}" ]]; then
+	echo >&2 "NO DATA RECEIVED FROM TARGET PLUGIN"
+	exit 1
+fi
+exit 0

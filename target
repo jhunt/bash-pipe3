@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [[ -n ${EMPTY_BACKUP:-} ]]; then
+	echo >&2 "nothing to backup; exiting without producing any output"
+	echo >&2 "(EMPTY_BACKUP=${EMPTY_BACKUP})"
+	exit 0
+fi
+
 for x in $(seq 1 42); do
 	echo >&2 "synchronizing to backup block $x"
 	echo "<< BLOCK $x >>"
