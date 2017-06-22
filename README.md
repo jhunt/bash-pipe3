@@ -22,7 +22,7 @@ including:
   - target plugins
   - the compression program (bzip2 / bunzip2)
   - the storage plugin
-  - /proc/<pid>/environ
+  - /proc/$pid/environ
 
 For this reason, we want to inject the iv+key into the pipeline at
 just the right moment, and we are going to try to do it via an
