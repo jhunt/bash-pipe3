@@ -1,0 +1,32 @@
+#!/bin/bash
+
+prefix() {
+	sed -e "s/^/$1: /"
+}
+
+run_target() {
+	./target 2> >(prefix 'target' >&2)
+}
+
+run_compress() {
+	./compress 2> >(prefix 'compress' >&2)
+}
+
+run_encrypt() {
+	./encrypt 2> >(prefix 'encrypt' >&2) 3< <(echo "$1"; echo "$2")
+}
+
+run_store() {
+	./store 2> >(prefix 'store' >&2)
+}
+
+read -u3 IV  2>/dev/null
+read -u3 KEY 2>/dev/null
+
+if [[ -z ${IV} || -z ${KEY} ]]; then
+	echo "encryption initialization vector and key are REQUIRED"
+	echo "arrange to have them written, one line each, to file descriptor 3"
+	exit 1
+fi
+
+run_target | run_compress | run_encrypt "$IV" "$KEY" | run_store

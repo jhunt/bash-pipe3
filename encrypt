@@ -1,0 +1,9 @@
+#!/bin/bash
+
+read -u3 IV
+read -u3 KEY
+echo >&2 "encrypting with iv($IV) and key($KEY)"
+cat
+
+echo >&2 "encrypted successfully."
+exit 0

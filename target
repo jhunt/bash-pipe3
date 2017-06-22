@@ -1,0 +1,12 @@
+#!/bin/bash
+
+for x in $(seq 1 42); do
+	echo >&2 "synchronizing to backup block $x"
+	echo "<< BLOCK $x >>"
+	dd if=/dev/urandom bs=32 count=32 2>/dev/null | base64
+	echo >&2 "wrote backup block $x... OK"
+	echo
+done
+
+echo >&2 "backup blocks flushed"
+exit 0
